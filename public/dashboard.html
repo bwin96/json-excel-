@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON to Excel Converter</title>
+  <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+  <style>
+    body { padding: 20px; font-family: Arial; }
+    #hot { margin: 20px 0; }
+    button { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>JSON Data Dashboard</h1>
+  <div id="hot"></div>
+  <button onclick="exportExcel()">Export to Excel</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // Initialize Handsontable
+    const container = document.getElementById('hot');
+    const hot = new Handsontable(container, {
+      licenseKey: 'non-commercial-and-evaluation',
+      rowHeaders: true,
+      colHeaders: true,
+      height: 'auto',
+      width: '100%'
+    });
+
+    // Load initial data
+    fetch('/data')
+      .then(response => response.json())
+      .then(data => hot.loadData(data));
+
+    // Real-time updates
+    const socket = io();
+    socket.on('file-updated', () => {
+      fetch('/data')
+        .then(response => response.json())
+        .then(data => hot.loadData(data));
+    });
+
+    // Excel Export
+    function exportExcel() {
+      window.open('/export', '_blank');
+    }
+  </script>
+</body>
+</html>
